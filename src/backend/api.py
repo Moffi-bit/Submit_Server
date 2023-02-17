@@ -33,11 +33,13 @@ def get_all_users():
         users_json.append(user)
 
     users_json = json.dumps(users_json, default=json_util.default)
+
     return users_json
 
 # Example search with query parameters: ?user=steven1&pass=123movies&job=student
 @app.route("/login/user/", methods=["POST"])
 def create_new_user():
+    # username should be encrypted before being sent as a query parameter and should be decrypted here
     user = request.args.get("user", type=str)
     # pwd should be encrypted before being sent as a query parameter and should be decrypted here
     pwd = request.args.get("pass", type=str)
@@ -55,8 +57,8 @@ def create_new_user():
 def get_user_data(username):
     collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
     user = collection.find({"user": username})
+    user = json_util.dumps(user)
 
-    user_json = json.dumps(user, default=json_util.default)
-    return user_json
+    return user
         
     
