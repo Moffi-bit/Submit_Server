@@ -4,34 +4,29 @@ from bson import json_util
 from dotenv import load_dotenv
 import os
 
+from backend.connector import Connector
+
 load_dotenv()
 
 MONGODB_HOST = os.getenv("host")
-MONGODB_PORT = os.getenv("port")
+MONGODB_PORT = int(os.getenv("port"))
 DB_NAME = os.getenv("db")
 COLLECTION_NAME = os.getenv("collection")
 
+new_connection = Connector(MONGODB_HOST, MONGODB_PORT)
+
 def submit_multiple_users():
-    connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
-    collection = connection[DB_NAME][COLLECTION_NAME]
+    collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
 
     demo_users = [
-        { "name": "Amy", "address": "Apple st 652"},
-        { "name": "Hannah", "address": "Mountain 21"},
-        { "name": "Michael", "address": "Valley 345"},
-        { "name": "Sandy", "address": "Ocean blvd 2"},
-        { "name": "Betty", "address": "Green Grass 1"},
-        { "name": "Richard", "address": "Sky st 331"},
-        { "name": "Susan", "address": "One way 98"},
-        { "name": "Vicky", "address": "Yellow Garden 2"},
-        { "name": "Ben", "address": "Park Lane 38"},
-        { "name": "William", "address": "Central st 954"},
-        { "name": "Chuck", "address": "Main Road 989"},
-        { "name": "Viola", "address": "Sideway 1633"}
+        {"email": "demo123@gmail.com", "user": "demo123", "pass": "demo123pass", "job": "student"},
+        {"email": "steven79@gmail.com", "user": "steve12", "pass": "stevepass", "job": "teacher"},
+        {"email": "moneymike@gmail.com", "user": "mmike", "pass": "demo$1mike", "job": "student"},
+        {"email": "john79@gmail.com", "user": "johncena", "pass": "johnpass", "job": "student"},
     ]
 
     collection.insert_many(demo_users)
-    connection.close()
+    new_connection.close_connection()
 
 if __name__ == "__main__":
     submit_multiple_users()

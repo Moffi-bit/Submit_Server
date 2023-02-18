@@ -36,9 +36,10 @@ def get_all_users():
 
     return users_json
 
-# Example search with query parameters: ?user=steven1&pass=123movies&job=student
+# Example search with query parameters: ?email=123@gmail.com&user=steven1&pass=123movies&job=student
 @app.route("/login/user/", methods=["POST"])
 def create_new_user():
+    email = request.args.get("email", type=str)
     # username should be encrypted before being sent as a query parameter and should be decrypted here
     user = request.args.get("user", type=str)
     # pwd should be encrypted before being sent as a query parameter and should be decrypted here
@@ -47,11 +48,16 @@ def create_new_user():
 
     collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
 
-    new_user = { "user": user, "pass": pwd, "job": job }
+    new_user = { "email": email, "user": user, "pass": pwd, "job": job }
 
     collection.insert_one(new_user)
 
-    return f"Searching for: {user}, {pwd}, {job}"
+    return f"Searching for: {email}, {user}, {pwd}, {job}"
+
+# PATCH isn't included here because we may want to have that functionality to update all users
+@app.route("/login/user/", methods=["PUT", "DELETE"])
+def invalid_users_endpoint():
+    return "Resource not found.", 404
 
 @app.route("/login/user/<string:username>", methods=["GET"])
 def get_user_data(username):
@@ -61,4 +67,30 @@ def get_user_data(username):
 
     return user
         
+@app.route("/login/user/<string:username>", methods=["DELETE"])
+def delete_user(username):
+    collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
+    user = collection.delete_one({"user": username})
+
+    return user
+
+# This will also be done with search query paramters example: ?email=123@gmail.com&user=steven1&pass=123movies&job=student
+@app.route("/login/user/<string:username>/", methods=["PUT"])
+def update_user(username):
+    collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
+    email = request.args.get("email", type=str)
+    # username should be encrypted before being sent as a query parameter and should be decrypted here
+    user = request.args.get("user", type=str)
+    # pwd should be encrypted before being sent as a query parameter and should be decrypted here
+    pwd = request.args.get("pass", type=str)
+    job = request.args.get("job", type=str)
+
+    # If they did not update all of their information, keep the un-updated information the same
+    user = collection.update_one({"user": username}, {"$set": {"email": {email}, "user": {user}, "pass": {pwd}, "job": {job}}})
+
+    return user
+
+@app.route("/login/user/<string:username>/", methods=["POST", "PATCH"])
+def invalid_user_endpoint():
+    return "Resource not found.", 404
     
