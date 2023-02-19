@@ -10,6 +10,9 @@ import connector
 
 load_dotenv()
 
+# Useful links
+# https://stackoverflow.com/questions/10434599/get-the-data-received-in-a-flask-request
+
 MONGODB_HOST = os.getenv("host")
 MONGODB_PORT = int(os.getenv("port"))
 DB_NAME = os.getenv("db")
@@ -36,15 +39,14 @@ def get_all_users():
 
     return users_json
 
-# Example search with query parameters: ?email=123@gmail.com&user=steven1&pass=123movies&job=student
 @app.route("/login/user/", methods=["POST"])
 def create_new_user():
-    email = request.args.get("email", type=str)
-    # username should be encrypted before being sent as a query parameter and should be decrypted here
-    user = request.args.get("user", type=str)
-    # pwd should be encrypted before being sent as a query parameter and should be decrypted here
-    pwd = request.args.get("pass", type=str)
-    job = request.args.get("job", type=str)
+    email = request.form.get("email", type=str)
+    # username should be encrypted 
+    user = request.form.get("user", type=str)
+    # pwd should be encrypted
+    pwd = request.form.get("pass", type=str)
+    job = request.form.get("job", type=str)
 
     collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
 
@@ -78,12 +80,12 @@ def delete_user(username):
 @app.route("/login/user/<string:username>/", methods=["PUT"])
 def update_user(username):
     collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
-    email = request.args.get("email", type=str)
-    # username should be encrypted before being sent as a query parameter and should be decrypted here
-    user = request.args.get("user", type=str)
-    # pwd should be encrypted before being sent as a query parameter and should be decrypted here
-    pwd = request.args.get("pass", type=str)
-    job = request.args.get("job", type=str)
+    email = request.form.get("email", type=str)
+    # username should be encrypted 
+    user = request.form.get("user", type=str)
+    # pwd should be encrypted
+    pwd = request.form.get("pass", type=str)
+    job = request.form.get("job", type=str)
 
     # If they did not update all of their information, keep the un-updated information the same
     user = collection.update_one({"user": username}, {"$set": {"email": {email}, "user": {user}, "pass": {pwd}, "job": {job}}})
