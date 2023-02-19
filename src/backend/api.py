@@ -16,9 +16,9 @@ load_dotenv()
 # Useful links
 # https://stackoverflow.com/questions/10434599/get-the-data-received-in-a-flask-request
 
-MONGODB_HOST = os.getenv("host")
-MONGODB_PORT = int(os.getenv("port"))
-DB_NAME = os.getenv("db")
+MONGODB_HOST = os.getenv("HOST")
+MONGODB_PORT = int(os.getenv("PORT"))
+DB_NAME = os.getenv("DB")
 
 new_connection = connector.Connector(MONGODB_HOST, MONGODB_PORT)
 
@@ -94,14 +94,14 @@ def update_user(username):
 
     # If they did not update all of their information, keep the un-updated information the same
     user = collection.update_one({"user": username}, {"$set": {"email": {email}, "user": {user}, "pass": {pwd}, "job": {job}}})
-    
+
     return user
 
 @app.route("/login/user/<string:username>/", methods=["POST", "PATCH"])
 def invalid_user_endpoint():
     return abort(404)
     
-@app.route("/login/user/<string:username>/<string:project>", methods=["POST"])
+@app.route("/login/user/<string:username>/project/<string:project>", methods=["POST"])
 def upload_user_project(username, project):
     collection = new_connection.get_collection(DB_NAME, "projects")
 
@@ -118,7 +118,7 @@ def upload_user_project(username, project):
 
         return abort(200) if file_uploaded else abort(400)
     
-@app.route("/login/user/<string:username>/<string:project>", methods=["GET"])
+@app.route("/login/user/<string:username>/project/<string:project>", methods=["GET"])
 def get_user_project(username, project):
     collection = new_connection.get_collection(DB_NAME, "projects")
     fs = gridfs.GridFS(new_connection, collection=collection)
@@ -130,6 +130,6 @@ def get_user_project(username, project):
     
     return abort(400)
 
-@app.route("/login/user/<string:username>/<string:project>", methods=["PUT", "PATCH", "DELETE"])
+@app.route("/login/user/<string:username>/project/<string:project>", methods=["PUT", "PATCH", "DELETE"])
 def invalid_project_endpoint():
     return abort(404)

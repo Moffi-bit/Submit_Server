@@ -1,4 +1,3 @@
-from flask import redirect, request
 from dotenv import load_dotenv
 import os
 
@@ -6,15 +5,14 @@ from backend.connector import Connector
 
 load_dotenv()
 
-MONGODB_HOST = os.getenv("host")
-MONGODB_PORT = int(os.getenv("port"))
-DB_NAME = os.getenv("db")
-COLLECTION_NAME = os.getenv("collection")
+MONGODB_HOST = os.getenv("HOST")
+MONGODB_PORT = int(os.getenv("PORT"))
+DB_NAME = os.getenv("DB")
 
 new_connection = Connector(MONGODB_HOST, MONGODB_PORT)
 
 def submit_multiple_users():
-    collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
+    collection = new_connection.get_collection(DB_NAME, "users")
 
     demo_users = [
         {"email": "demo123@gmail.com", "user": "demo123", "pass": "demo123pass", "job": "student"},
