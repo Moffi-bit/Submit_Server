@@ -1,6 +1,4 @@
-import json
-from pymongo import MongoClient
-from bson import json_util
+from flask import redirect, request
 from dotenv import load_dotenv
 import os
 

@@ -1,12 +1,15 @@
 # Pip modules
-from flask import Flask, request
+from flask import Flask, abort, redirect, request
 from bson import json_util
 import json
 from dotenv import load_dotenv
 import os
+import gridfs
+from werkzeug.utils import secure_filename
 
 # Local modules
 import connector
+import file_utilities
 
 load_dotenv()
 
@@ -16,19 +19,22 @@ load_dotenv()
 MONGODB_HOST = os.getenv("host")
 MONGODB_PORT = int(os.getenv("port"))
 DB_NAME = os.getenv("db")
-COLLECTION_NAME = os.getenv("collection")
 
 new_connection = connector.Connector(MONGODB_HOST, MONGODB_PORT)
 
 app = Flask(__name__)
 
 @app.route("/")
-def home_page():
-    return "<p>Welcome to our homepage!</p>"
+def invalid_homepage_request():
+    return abort(404)
+
+@app.route("/login/")
+def invalid_login_request():
+    return abort(404)
 
 @app.route("/login/user/", methods=["GET"])
 def get_all_users():
-    collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
+    collection = new_connection.get_collection(DB_NAME, "users")
     users = collection.find()
     users_json = []
     
@@ -48,7 +54,7 @@ def create_new_user():
     pwd = request.form.get("pass", type=str)
     job = request.form.get("job", type=str)
 
-    collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
+    collection = new_connection.get_collection(DB_NAME, "users")
 
     new_user = { "email": email, "user": user, "pass": pwd, "job": job }
 
@@ -59,11 +65,11 @@ def create_new_user():
 # PATCH isn't included here because we may want to have that functionality to update all users
 @app.route("/login/user/", methods=["PUT", "DELETE"])
 def invalid_users_endpoint():
-    return "Resource not found.", 404
+    return abort(404)
 
 @app.route("/login/user/<string:username>", methods=["GET"])
 def get_user_data(username):
-    collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
+    collection = new_connection.get_collection(DB_NAME, "users")
     user = collection.find({"user": username})
     user = json_util.dumps(user)
 
@@ -71,15 +77,14 @@ def get_user_data(username):
         
 @app.route("/login/user/<string:username>", methods=["DELETE"])
 def delete_user(username):
-    collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
+    collection = new_connection.get_collection(DB_NAME, "users")
     user = collection.delete_one({"user": username})
 
     return user
 
-# This will also be done with search query paramters example: ?email=123@gmail.com&user=steven1&pass=123movies&job=student
 @app.route("/login/user/<string:username>/", methods=["PUT"])
 def update_user(username):
-    collection = new_connection.get_collection(DB_NAME, COLLECTION_NAME)
+    collection = new_connection.get_collection(DB_NAME, "users")
     email = request.form.get("email", type=str)
     # username should be encrypted 
     user = request.form.get("user", type=str)
@@ -89,10 +94,42 @@ def update_user(username):
 
     # If they did not update all of their information, keep the un-updated information the same
     user = collection.update_one({"user": username}, {"$set": {"email": {email}, "user": {user}, "pass": {pwd}, "job": {job}}})
-
+    
     return user
 
 @app.route("/login/user/<string:username>/", methods=["POST", "PATCH"])
 def invalid_user_endpoint():
-    return "Resource not found.", 404
+    return abort(404)
     
+@app.route("/login/user/<string:username>/<string:project>", methods=["POST"])
+def upload_user_project(username, project):
+    collection = new_connection.get_collection(DB_NAME, "projects")
+
+    if 'file' not in request.files:
+        # If the user didn't upload a file return them back to the page they were at.
+        return redirect(request.url)
+    
+    file = request.files.get("project")
+
+    if file and file != "" and file_utilities.allowed_file(file.filename, project):
+        file.filename = f"{username}-{project}"
+        fs = gridfs.GridFS(new_connection, collection=collection)
+        file_uploaded = fs.put(file)
+
+        return abort(200) if file_uploaded else abort(400)
+    
+@app.route("/login/user/<string:username>/<string:project>", methods=["GET"])
+def get_user_project(username, project):
+    collection = new_connection.get_collection(DB_NAME, "projects")
+    fs = gridfs.GridFS(new_connection, collection=collection)
+
+    if fs.exists(filename=f"{username}-{project}"):
+        file_reference = fs.get(f"{username}-{project}")
+
+        return file_reference.read()
+    
+    return abort(400)
+
+@app.route("/login/user/<string:username>/<string:project>", methods=["PUT", "PATCH", "DELETE"])
+def invalid_project_endpoint():
+    return abort(404)
