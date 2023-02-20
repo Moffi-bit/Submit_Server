@@ -15,10 +15,10 @@ def submit_multiple_users():
     collection = new_connection.get_collection(DB_NAME, "users")
 
     demo_users = [
-        {"email": "demo123@gmail.com", "user": "demo123", "pass": "demo123pass", "job": "student"},
-        {"email": "steven79@gmail.com", "user": "steve12", "pass": "stevepass", "job": "teacher"},
-        {"email": "moneymike@gmail.com", "user": "mmike", "pass": "demo$1mike", "job": "student"},
-        {"email": "john79@gmail.com", "user": "johncena", "pass": "johnpass", "job": "student"},
+        {"email": "demo123@gmail.com", "user": "demo123", "pass": "demo123pass", "classes": ""},
+        {"email": "steven79@gmail.com", "user": "steve12", "pass": "stevepass", "classes": ""},
+        {"email": "moneymike@gmail.com", "user": "mmike", "pass": "demo$1mike", "classes": ""},
+        {"email": "john79@gmail.com", "user": "johncena", "pass": "johnpass", "classes": ""},
     ]
 
     collection.insert_many(demo_users)
