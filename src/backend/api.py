@@ -111,9 +111,10 @@ def add_user_class(username, class_name):
 def invalid_class_endpoint(username, class_name):
     return abort(404)
 
-@app.route("/login/user/<string:username>/class/<string:class_name>/project/<string:project>/", methods=["POST"])
+@app.route("/login/user/<string:username>/class/<string:class_name>/project/", methods=["POST"])
 def upload_user_project(username, class_name, project):
     collection = new_connection.get_collection(DB_NAME, "projects")
+    project = request.form.get("project_name")
 
     if 'file' not in request.files:
         # If the user didn't upload a file return them back to the page they were at.
@@ -127,7 +128,11 @@ def upload_user_project(username, class_name, project):
         file_uploaded = fs.put(file)
 
         return abort(200) if file_uploaded else abort(400)
-    
+
+@app.route("/login/user/<string:username>/class/<string:class_name>/project/", methods=["GET", "PUT", "PATCH", "DELETE"])
+def invalid_proj_endpoint(username, class_name):
+    return abort(404)    
+
 @app.route("/login/user/<string:username>/class/<string:class_name>/project/<string:project>/", methods=["GET"])
 def get_user_project(username, class_name, project):
     collection = new_connection.get_collection(DB_NAME, "projects")
@@ -136,10 +141,10 @@ def get_user_project(username, class_name, project):
     if fs.exists(filename=f"{username}-{class_name}-{project}"):
         file_reference = fs.get(f"{username}-{class_name}-{project}")
 
-        return file_reference.read()
+        return str(file_reference.read())
     
     return abort(400)
 
-@app.route("/login/user/<string:username>/class/<string:class_name>/project/<string:project>/", methods=["PUT", "PATCH", "DELETE"])
+@app.route("/login/user/<string:username>/class/<string:class_name>/project/<string:project>/", methods=["POST", "PUT", "PATCH", "DELETE"])
 def invalid_project_endpoint(username, class_name, project):
     return abort(404)
