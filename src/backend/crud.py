@@ -1,6 +1,8 @@
 import requests
 
 data_json = {
+    "first": "john",
+    "last": "larry",
     "email": "yessir@gmail",
     "user": "geek",
     "pass": "coding",
