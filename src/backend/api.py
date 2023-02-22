@@ -105,7 +105,7 @@ def add_user_class(username, class_name):
 
     user = collection.update_one({"user": username}, {"$set": {"classes": {"$concat": [ "$classes", f".{class_name}"]}}})
 
-    return user
+    return abort(200) if user else abort(400)
 
 @app.route("/login/user/<string:username>/class/<string:class_name>/", methods=["GET", "PUT", "PATCH", "DELETE"])
 def invalid_class_endpoint(username, class_name):
@@ -140,6 +140,7 @@ def get_user_project(username, class_name, project):
 
     if fs.exists(filename=f"{username}-{class_name}-{project}"):
         file_reference = fs.get(f"{username}-{class_name}-{project}")
+        
 
         return str(file_reference.read())
     
