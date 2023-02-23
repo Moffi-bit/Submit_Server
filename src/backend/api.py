@@ -49,10 +49,11 @@ def get_all_users():
         # pwd should be encrypted
         pwd = request.form.get("pass", type=str)
         id = str(int(random.random() * random.randint(100000, 5000000) * datetime.now().microsecond))
+
         collection = new_connection.get_collection(DB_NAME, "users")
 
-        new_user = { "id": id, "first": first, "last": last, "email": email, "user": user, "pass": pwd, "classes": "" }
-
+        new_user = { "id": id, "first": first, "last": last, "email": email, "user": user, "pass": pwd, "classes": [] }
+        # db.collection_name.update_one({"id": id}, {"$addToSet:" { "classes": {"$each": {["1241401", "124142151"]}}})
         collection.insert_one(new_user)
 
         return f"Searching for: {id}, {first}, {last}, {email}, {user}, {pwd}"
@@ -97,7 +98,7 @@ def add_user_class(id, class_id):
 
         user = collection.update_one({"user": id})
 
-        return abort(200) if user else abort(400)
+        return abort(200)
     
     return abort(404)
 
