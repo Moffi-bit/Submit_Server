@@ -28,8 +28,9 @@ app = Flask(__name__)
 
 @app.route("/login/user/", methods=["GET", "POST"])
 def get_all_users():
+    collection = new_connection.get_collection(DB_NAME, "users")
+
     if request.method == "GET":
-        collection = new_connection.get_collection(DB_NAME, "users")
         users = collection.find()
         users_json = []
         
@@ -50,14 +51,38 @@ def get_all_users():
         pwd = request.form.get("pass", type=str)
         id = str(int(random.random() * random.randint(100000, 5000000) * datetime.now().microsecond))
 
-        collection = new_connection.get_collection(DB_NAME, "users")
-
         new_user = { "id": id, "first": first, "last": last, "email": email, "user": user, "pass": pwd, "classes": [] }
-        # db.collection_name.update_one({"id": id}, {"$addToSet:" { "classes": {"$each": {["1241401", "124142151"]}}})
         collection.insert_one(new_user)
 
-        return f"Searching for: {id}, {first}, {last}, {email}, {user}, {pwd}"
+        return id
     
+    return abort(404)
+
+@app.route("/login/class/", methods=["GET", "POST"])
+def add_new_class():
+    collection = new_connection.get_collection(DB_NAME, "classes")
+
+    if request.method == "GET":
+        classes = collection.find()
+        classes_json = []
+        
+        for user in classes:
+            classes_json.append(user)
+
+        classes_json = json.dumps(classes_json, default=json_util.default)
+
+        return classes_json
+    
+    if request.method == "POST":
+        name = request.form.get("name", type=str)
+        id = str(int(random.random() * random.randint(100000, 5000000) * datetime.now().microsecond))
+
+        new_class = { "id": id, "name": name, "instructors": [], "tas": [], "students": [] }
+
+        collection.insert_one(new_class)
+
+        return id
+
     return abort(404)
 
 @app.route("/login/user/<string:id>", methods=["GET", "DELETE", "PUT"])
@@ -91,12 +116,15 @@ def get_user_data(id):
     
     return abort(404)
 
-@app.route("/login/user/<string:id>/class/<string:class_id>/", methods=["POST"])
+@app.route("/login/user/<string:id>/class/<string:class_id>/", methods=["PUT"])
 def add_user_class(id, class_id):
-    if request.method == "POST":
-        collection = new_connection.get_collection(DB_NAME, "users")
+    users_collection = new_connection.get_collection(DB_NAME, "users")
+    class_collection = new_connection.get_collection(DB_NAME, "classes")
 
-        user = collection.update_one({"user": id})
+    if request.method == "PUT":
+        role = request.form.get("role", type=str)
+        users_collection.update_one({"id": id}, {"$addToSet": { "classes": {"$each": {[f"{class_id}"]}}}})
+        class_collection.update_one({"id": id}, {"$addToSet": {f"{role}": {"$each": {[f"{id}"]}}}})
 
         return abort(200)
     
