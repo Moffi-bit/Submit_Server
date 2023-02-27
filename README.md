@@ -1,1 +1,4 @@
 # Submit_Server
+
+## Functionality
+
