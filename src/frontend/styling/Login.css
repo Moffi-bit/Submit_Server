@@ -1,1 +1,161 @@
+/* Login Page CSS */
 
+/* Imports */
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald&family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@500&family=Source+Sans+Pro:wght@600&display=swap');
+
+/* Classes and Styling */
+
+.window-login {
+    width: 100vw;
+    height: 100vh;
+    display: relative;
+    background-color: #F0EDE3;
+}
+
+.window-header {
+    width: 100%;
+    height: 80px;
+    z-index: 1;
+}
+
+.window-main {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    z-index: 0;
+    position: absolute;
+    top: 0;
+}
+
+.overall-modal {
+    width: 900px;
+    height: 700px;
+    display: flex;
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid black;
+}
+
+.modal-left {
+    width: 400px;
+    height: calc(100% - 30px);
+    margin: 15px;
+    background-color: #17171e;
+    border-radius: 20px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-left-top {
+    width: calc(100% - 80px);
+    height: calc(270px - 80px);
+    padding: 40px;
+}
+
+.modal-left-bottom {
+    width: 100%;
+    height: 400px;
+}
+
+.image1 {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+.modal-right {
+    width: calc(500px - 100px);
+    height: calc(100% - 100px);
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.text1 {
+    color: white;
+    font-family: 'Oswald', sans-serif;
+    font-size: 40px;
+    font-weight: 500;
+    padding-top: 10px;
+    margin: 0px;
+}
+
+.text2 {
+    color: black;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 40px;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.text3 {
+    color: black;
+    margin: 0px 0px 10px 0px;
+}
+
+.user-select-outer {
+    width: 385px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+.user-select-button {
+    font-family: 'Heebo', sans-serif;
+    color: black;
+    width: 121.5px;
+    margin-right: 10px;
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid #707e8b;
+}
+
+.sign-up-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-label {
+    font-family: 'Heebo', sans-serif;
+    color: #707e8b;
+    margin-bottom: 3px;
+    font-size: 14px;
+}
+
+.input-field {
+    width: calc(100% - 24px);
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: black;
+
+    padding: 10px 12px 10px 12px;
+    border-radius: 5px;
+    border: 1px solid #707e8b;
+    margin-bottom: 18px;
+}
+
+.input-field::placeholder {
+    color: #707e8b;
+}
+
+.input-button {
+    margin-top: 10px;
+    background-color: #8C2F39;
+    width: 150px;
+    height: 50px;
+    border-radius: 5px;
+    color: white;
+    border: 0px;
+    font-size: 15px;
+    font-family: 'Source Sans Pro', sans-serif;
+}
