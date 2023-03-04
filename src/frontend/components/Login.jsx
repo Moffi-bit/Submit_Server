@@ -30,14 +30,15 @@ const Login = () => {
               <p className = "text2">Sign Up</p>
               <p className = "text3">Have an account already? </p>
 
-              <p className = "input-label">I am a...</p>
-              <div className = "user-select-outer">
-                <button className = "user-select-button" >Student</button>
-                <button className = "user-select-button" >Teacher</button>
-                <button className = "user-select-button" >TA</button>
-              </div>
-
               <form className = "sign-up-form">
+
+                <p className = "input-label">I am a...</p>
+                <div className = "user-select-outer">
+                  <button className = "user-select-button" type = "button" name = "user-type">Student</button>
+                  <button className = "user-select-button" type = "button" name = "user-type">Teacher</button>
+                  <button className = "user-select-button" type = "button" name = "user-type">TA</button>
+                </div>
+
                 <label className = "input-label" for="fname">Full Name</label>
                 <input className = "input-field" type="text" id="fname" placeholder = "Enter full name"/>
 
@@ -46,6 +47,14 @@ const Login = () => {
 
                 <label className = "input-label" for="password">Password</label>
                 <input className = "input-field" type="password" id="password" placeholder = "Enter password"/>
+
+                <label className = "input-label" for="password">Institution Name</label>
+                <select className = "dropdown-field" name="cars" id="cars" placeholder = "Institution">
+                  <option value="">University of Maryland College Park</option>
+                  <option value="">Middlesex County Academy for SMET</option>
+                  <option value="mercedes">JP Stevens High School</option>
+                  <option value="audi">Woodbridge Academy</option>
+                </select>
 
                 <input className = "input-button" type="submit" value="Create Account"/>
               </form>

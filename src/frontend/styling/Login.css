@@ -119,6 +119,12 @@
     border: 1px solid #707e8b;
 }
 
+.user-select-button::selection {
+    border-radius: 1px solid #8C2F39;
+    background-color: rgb(205, 82, 95);
+    color: white;
+}
+
 .sign-up-form {
     display: flex;
     flex-direction: column;
@@ -158,4 +164,17 @@
     border: 0px;
     font-size: 15px;
     font-family: 'Source Sans Pro', sans-serif;
+}
+
+.dropdown-field {
+    width: 100%;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: black;
+
+    padding: 10px 12px 10px 12px;
+    border-radius: 5px;
+    border: 1px solid #707e8b;
+    margin-bottom: 18px;
 }
