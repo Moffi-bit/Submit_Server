@@ -49,7 +49,7 @@ const Login = () => {
                 <input className = "input-field" type="password" id="password" placeholder = "Enter password"/>
 
                 <label className = "input-label" for="password">Institution Name</label>
-                <select className = "dropdown-field" name="cars" id="cars" placeholder = "Institution">
+                <select className = "dropdown-field" placeholder = "Institution">
                   <option value="">University of Maryland College Park</option>
                   <option value="">Middlesex County Academy for SMET</option>
                   <option value="mercedes">JP Stevens High School</option>
