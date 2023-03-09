@@ -27,20 +27,23 @@ new_connection = connector.Connector(MONGODB_HOST, MONGODB_PORT)
 
 app = Flask(__name__)
 
+def get_all_of_a_collection(collection):
+    items = collection.find()
+    items_json = []
+        
+    for item in items:
+        items_json.append(item)
+
+    items_json = json.dumps(items_json, default=json_util.default)
+
+    return items_json
+
 @app.route("/user/", methods=["GET", "POST"])
 def user_crud():
     collection = new_connection.get_collection(DB_NAME, "users")
 
     if request.method == "GET":
-        users = collection.find()
-        users_json = []
-        
-        for user in users:
-            users_json.append(user)
-
-        users_json = json.dumps(users_json, default=json_util.default)
-
-        return users_json
+        return get_all_of_a_collection(collection)
 
     if request.method == "POST":
         first = request.form.get("first", type=str)
@@ -62,39 +65,30 @@ def user_crud():
 @app.route("/class/", methods=["GET", "POST"])
 def class_crud():
     collection = new_connection.get_collection(DB_NAME, "classes")
-    sections_collection = new_connection.get_collection(DB_NAME, "sections")
 
     if request.method == "GET":
-        classes = collection.find()
-        classes_json = []
-        
-        for curr_class in classes:
-            classes_json.append(curr_class)
-
-        classes_json = json.dumps(classes_json, default=json_util.default)
-
-        return classes_json
+        return get_all_of_a_collection(collection)
     
     if request.method == "POST":
         name = request.form.get("name", type=str)
         period = request.form.get("period", type=str)
 
         class_id = other_utilities.generate_id()
-        section_id = other_utilities.generate_id()
 
         new_class = { "id": class_id, "name": name, "period": period, "assignments": [], "sections": [] }
-        new_section = {"id": section_id, "class_id": class_id, "instructors": [], "tas": [], "students": [] }
 
         collection.insert_one(new_class)
-        sections_collection.insert_one(new_section)
 
-        return class_id, section_id
+        return class_id
 
     return abort(404)
 
-@app.route("/assignment/")
+@app.route("/assignment/", methods=["GET", "POST"])
 def assignment_crud():
     collection = new_connection.get_collection(DB_NAME, "assignments")
+
+    if request.method == "GET":
+        return get_all_of_a_collection(collection)
 
     if request.method == "POST":
         class_id = request.form.get("class", type=str)
@@ -105,6 +99,46 @@ def assignment_crud():
         # can add more data to assignments with time
         new_assignment = {"id": id, "class": class_id, "points": points}
 
+        collection.insert_one(new_assignment)
+
+        return id
+    
+    return abort(404)
+
+@app.route("/section/", methods=["GET", "POST"])
+def section_crud():
+    collection = new_connection.get_collection(DB_NAME, "sections")
+    class_collection = new_connection.get_collection(DB_NAME, "classes")
+
+    if request.method == "GET":
+        return get_all_of_a_collection(collection)
+
+    if request.method == "POST":
+        class_id = request.form.get("class_id", type=str)
+        section_id = other_utilities.generate_id()
+
+        if class_collection.find_one({"id": class_id}) != None:
+            class_collection.update_one({"id": class_id}, {"$addToSet": {"sections": {"$each": {[section_id]}}}})
+
+        new_section = {"id": section_id, "class_id": class_id, "instructors": [], "tas": [], "students": [] }
+
+        collection.insert_one(new_section)
+
+        return section_id
+    
+    return abort(404)
+
+@app.route("/file/", methods=["GET", "POST"])
+def file_crud():
+    collection = new_connection.get_collection(DB_NAME, "files")
+
+    if request.method == "GET":
+        return get_all_of_a_collection(collection)
+    
+    if request.method == "POST":
+        return 
+    
+    return abort(404)
 
 @app.route("/user/<string:id>", methods=["GET", "DELETE", "PUT"])
 def specific_user_crud(id):
@@ -136,6 +170,14 @@ def specific_user_crud(id):
         return user
     
     return abort(404)
+
+@app.route("/user/<string:id>/class/", methods=["GET"])
+def specific_user_crud_all_classes():
+    users_collection = new_connection.get_collection(DB_NAME, "users")
+
+    if request.method == "GET":
+        if users_collection.find_one({"id": id}) != None:
+            return
 
 @app.route("/user/<string:id>/class/<string:class_id>/", methods=["PUT"])
 def specific_user_and_class_crud(id, class_id):
@@ -186,3 +228,4 @@ def specific_project_crud(id, class_id, project):
             return str(file_reference.read())
     
     return abort(404)
+
