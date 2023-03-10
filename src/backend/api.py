@@ -136,9 +136,19 @@ def file_crud():
         return get_all_of_a_collection(collection)
     
     if request.method == "POST":
-        return 
-    
-    return abort(404)
+        name = request.form.get("project_name")
+
+        if 'file' not in request.files:
+            # If the user didn't upload a file return them back to the page they were at.
+            return redirect(request.url)
+        
+        file = request.files.get("file")
+
+        if file and file != "" and file_utilities.allowed_file(file.filename, name):
+            
+            return abort(200)
+        
+    return abort(404)  
 
 @app.route("/user/<string:id>", methods=["GET", "DELETE", "PUT"])
 def specific_user_crud(id):
@@ -193,39 +203,3 @@ def specific_user_and_class_crud(id, class_id):
         return abort(200)
     
     return abort(404)
-
-@app.route("/user/<string:id>/class/<string:class_id>/project/", methods=["POST"])
-def project_crud(id, class_id):
-    if request.method == "POST":
-        collection = new_connection.get_collection(DB_NAME, "projects")
-        project = request.form.get("project_name")
-
-        if 'file' not in request.files:
-            # If the user didn't upload a file return them back to the page they were at.
-            return redirect(request.url)
-        
-        file = request.files.get("project")
-
-        if file and file != "" and file_utilities.allowed_file(file.filename, project):
-            file.filename = f"{id}-{class_id}-{project}"
-            fs = gridfs.GridFS(new_connection, collection=collection)
-            file_uploaded = fs.put(file)
-
-            return abort(200) if file_uploaded else abort(400)
-        
-    return abort(404)  
-
-@app.route("/user/<string:id>/class/<string:class_id>/project/<string:project>/", methods=["GET"])
-def specific_project_crud(id, class_id, project):
-    if request.method == "GET":
-        collection = new_connection.get_collection(DB_NAME, "projects")
-        fs = gridfs.GridFS(new_connection, collection=collection)
-
-        if fs.exists(filename=f"{id}-{class_id}-{project}"):
-            file_reference = fs.get(f"{id}-{class_id}-{project}")
-            
-
-            return str(file_reference.read())
-    
-    return abort(404)
-
